@@ -5,10 +5,13 @@ Created on Sun May 12 00:39:59 2024
 @author: Usuario
 """
 
+
 import mip
 import numpy as np
 from mip import Model, xsum, MAXIMIZE, INF, CBC, INTEGER
 rg=np.random.default_rng(2)
+
+print("CÓDIGO REALIZADO EN CLASE DE FACTOR HUMANO DE LA UNIVERSIDAD DE SEVILLA EN EL CURSO 22/23")
 
 #Parámetros
 S= 52#Semanas totales
