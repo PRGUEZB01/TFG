@@ -65,6 +65,57 @@ if sol2.success:
 else:
     print(sol2.message)
 
+#%%
+
+#MODELO MATEMÁTICO MILP PARA OBTENER LOS PUNTOS EN LAS CIRCUNFERENCIAS CON EL SOLVER CBC
+#Y UTILIZANDO LOS OPERADORES DE LAGRANGE
+
+#FALTAN PONER LAS RESTRICCIONES EN DERIVADAS PARCIALES. 
+import mip
+import numpy as np
+from mip import Model, xsum, MINIMIZE, INF, CBC, INTEGER
+
+#Variables
+alpha=[1,3,5,6,8]
+betha=[1,2,1.5,2,5]
+r=0.4
+n=len(alpha) #número de circunferencias
+
+#Modelo
+Modelo = Model("Prueba_lagrange_marsupial",sense=MINIMIZE,solver_name=CBC)
+#Todas las circunferencias en el primer cuadrante. 
+x=[Modelo.add_var(name="Coordenada x", var_type=INTEGER, lb=0, ub=INF) for i in range (n-2)]
+y=[Modelo.add_var(name="Coordenada y", var_type=INTEGER, lb=0, ub=INF) for i in range (n-2)]
+cons=[Modelo.add_var(name="Coordenada y", var_type=INTEGER, lb=-INF, ub=INF) for i in range (n-2)]
+
+#Restricciones
+for i in range(num_trabajadores):
+    Modelo += mip.xsum(x[i][j] for j in range(dias_año)) ==vacaciones[i]
+
+#Objetivo
+Modelo.objective= (alpha[0]-x[0])**2+(betha[0]-y[0])**2+(x[n-3]-alpha[n-1])**2+(y[n-3]-betha[n-1])**2+xsum((x[i+1]-x[i])**2 for i in range(n-2))
+#Optimizamos el modelo y vemos si ha dado resultado. 
+Modelo.optimize()
+print(Modelo.status)
+
+
+#%%
+from scipy.optimize import root
+import numpy as np
+import math
+import sympy as sp
+
+
+
+# =============================================================================
+# alpha=[1,3,5,2]
+# betha=[1,2,1.5,2]
+# r=0.4
+# n=len(alpha) #número de circunferencias
+# f= (alpha[0]-x[0])**2+(betha[0]-y[0])**2+(alpha[n-1]-x[n-1])**2+(betha[n-1]-y[n-1])**2+sum((x[i+1]-x[i])**2 for i in range(n-2))
+# for i in range (n-2):
+#     g=(x[i]-alpha[i+1])**2-(y[i]-betha[i+1])**2-r
+# =============================================================================
 
 
 
