@@ -5,9 +5,18 @@ Created on Mon May 13 17:43:26 2024
 @author: Pablo Rodríguez Barra
 """
 
+#Me va a proporcionar un punto que estoy obligado a hallar, puesto que tengo el mismo número
+#de ecuaciones y variables. En el momento que no esté tan claro este valor, cuando pueda oscilar
+#el valor de las variables, entonces tendremos que optimizarlo y buscar el óptimo. 
+#Si se parte siempre del centro de la primera circunferencia al centro de la última entonces el 
+#problema es más sencillo de resolver. 
+
+#EN el modelo de abajo no estoy añadiendo la función objetivo, tan solo las restricciones, cuando se meta
+#la FO entonces podremos optimizar, buscando los mejores valores. 
 #LEARNING ROOT
 from scipy.optimize import root
 import numpy as np
+import math
 
 #Busca el óptimo para el caso de 3 circunferencias colineales con centro de la segunda en el origen de
 #coordenadas
@@ -33,6 +42,28 @@ if sol.success:
     print(sol.x)
 else:
     print(sol.message)
+
+#NO ME DA LA SOLUCIÓN. Comprobar lo que saldría a lapiz y ver si coincide con el geogebra
+
+def calcular_bordes (puntos, alpha1, alpha3, betha1, betha3, x, y,r):
+    [x1, y1, x3, y3]=puntos
+    res=puntos*0-1
+    res[0]=x1-alpha1**2+y1-betha1**2-r**2
+    res[1]=-(y3-betha1)+((y-betha1)/(x-alpha1))*(x3-alpha1)
+    res[2]=x3-alpha3**2+y3-betha3**2-r**2
+    res[3]=-(y3-betha3)+((y-betha3)/(x-alpha3))*(x3-alpha3)
+    return res
+
+x=0.16641006
+y=-0.24961509
+puntos_iniciales=[0,0,0,0]
+datos=(alpha1, alpha3,betha1, betha3,x,y ,r)
+sol2=root(calcular_bordes, puntos_iniciales, datos, method='hybr')
+
+if sol2.success:
+    print(sol2.x)
+else:
+    print(sol2.message)
 
 
 
@@ -121,6 +152,31 @@ plt.ylabel(r'$x2$', fontsize=16)
 ax.spines['right'].set_visible(False)
 ax.spines['top'].set_visible(False)
 fig.show()
+
+#%%
+alpha1=-3
+betha1=-2
+alpha3=5
+betha3=-1
+r=0.3
+#DEFINIMOS NUESTRO SISTEMA CON FORMATO SCIPY
+objective_function = lambda x: (alpha1-x[0])**2 +(betha1-x[1])**2 + (x[0]-alpha3)**2+(x[1]-betha3)**2
+
+#se definen como ineq las restricciones de tipo >=
+cons= [
+       {'type': 'eq', 'fun': lambda x: x[0]**2+x[1]**2-r**2},
+       {'type': 'eq', 'fun': lambda x: -2*(alpha1-x[0]) +2*(x[0]-alpha3)-2*x[2]*x[0]},
+       {'type': 'eq', 'fun': lambda x: -2*(betha1-x[1]) +2*(x[1]-betha3)-2*x[2]*x[1]}
+]
+
+#Las variables pueden tener cualquier valor entre el 0 y el 1
+boundaries = [(0,100),(0,100), (0,100)]
+
+res= minimize(objective_function,
+               [point[0], point[1]], 
+               method='SLSQP',
+               bounds= boundaries, 
+               constraints=cons)
 
 
 
