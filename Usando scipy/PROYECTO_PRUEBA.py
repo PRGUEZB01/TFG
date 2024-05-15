@@ -11,15 +11,13 @@ Created on Mon May 13 17:43:26 2024
 #Si se parte siempre del centro de la primera circunferencia al centro de la última entonces el 
 #problema es más sencillo de resolver. 
 
-#EN el modelo de abajo no estoy añadiendo la función objetivo, tan solo las restricciones, cuando se meta
-#la FO entonces podremos optimizar, buscando los mejores valores. 
+#EN el modelo de abajo no estoy añadiendo la función objetivo
 #LEARNING ROOT
 from scipy.optimize import root
 import numpy as np
 import math
 
-#Busca el óptimo para el caso de 3 circunferencias colineales con centro de la segunda en el origen de
-#coordenadas
+#Busca el óptimo para el caso de 3 circunferencias colineales con centro de la segunda en el origen de coordenadas
 def nuestrafuncion(start_points, alpha1,betha1, alpha3,betha3,r):
     [x,y,landa]=start_points
     res=start_points*0-1#la inicializa con esto
@@ -28,22 +26,16 @@ def nuestrafuncion(start_points, alpha1,betha1, alpha3,betha3,r):
     res[2]=x**2+y**2-r**2
     return res
 
-alpha1=-3
-betha1=-2
-alpha3=5
-betha3=-1
-r=0.3
+alpha1=-3;betha1=-2;alpha3=5;betha3=-1;r=0.3
 
-initial_points=[1,1,1] #np.array([1,1,1]) otra posibilidad
+initial_points=[1,1,1] 
 data=(alpha1, betha1, alpha3, betha3, r)
 sol=root(nuestrafuncion, initial_points, data, method='hybr')
 
-if sol.success:
-    print(sol.x)
-else:
-    print(sol.message)
+if sol.success:print(sol.x)
+else:          print(sol.message)
 
-#NO ME DA LA SOLUCIÓN. Comprobar lo que saldría a lapiz y ver si coincide con el geogebra
+#NO ME DA LA SOLUCIÓN.Calculo puntos en borde de circunferencia 1 y 3
 
 def calcular_bordes (puntos, alpha1, alpha3, betha1, betha3, x, y,r):
     [x1, y1, x3, y3]=puntos
@@ -54,16 +46,13 @@ def calcular_bordes (puntos, alpha1, alpha3, betha1, betha3, x, y,r):
     res[3]=-(y3-betha3)+((y-betha3)/(x-alpha3))*(x3-alpha3)
     return res
 
-x=0.16641006
-y=-0.24961509
+x=0.16641006;y=-0.24961509
 puntos_iniciales=[0,0,0,0]
 datos=(alpha1, alpha3,betha1, betha3,x,y ,r)
 sol2=root(calcular_bordes, puntos_iniciales, datos, method='hybr')
 
-if sol2.success:
-    print(sol2.x)
-else:
-    print(sol2.message)
+if sol2.success: print(sol2.x)
+else:print(sol2.message)
 
 #%%
 
@@ -89,6 +78,9 @@ y=[Modelo.add_var(name="Coordenada y", var_type=INTEGER, lb=0, ub=INF) for i in 
 cons=[Modelo.add_var(name="Coordenada y", var_type=INTEGER, lb=-INF, ub=INF) for i in range (n-2)]
 
 #Restricciones
+# =============================================================================
+# APLICAR DERIVADAS PARCIALES EN FUNCION DE X,Y Y CONS (LAMBDA) salen (3*(n-2)) restricciones
+# =============================================================================
 for i in range(num_trabajadores):
     Modelo += mip.xsum(x[i][j] for j in range(dias_año)) ==vacaciones[i]
 
@@ -100,26 +92,8 @@ print(Modelo.status)
 
 
 #%%
-from scipy.optimize import root
-import numpy as np
-import math
-import sympy as sp
 
-
-
-# =============================================================================
-# alpha=[1,3,5,2]
-# betha=[1,2,1.5,2]
-# r=0.4
-# n=len(alpha) #número de circunferencias
-# f= (alpha[0]-x[0])**2+(betha[0]-y[0])**2+(alpha[n-1]-x[n-1])**2+(betha[n-1]-y[n-1])**2+sum((x[i+1]-x[i])**2 for i in range(n-2))
-# for i in range (n-2):
-#     g=(x[i]-alpha[i+1])**2-(y[i]-betha[i+1])**2-r
-# =============================================================================
-
-
-
-#%%
+#EJEMPLO DE OPTIMIZACIÓN APLICANDO SCIPY EN UN RESTAURANTE DURANTE EL COVID 
 import mip
 from mip import Model, xsum, MAXIMIZE, INF, CBC, INTEGER
 
@@ -179,6 +153,7 @@ else:
     print("No solution aviable")
 
 
+#IMPRIMIR GRÁFICA
 #Crea 2 vectores (arrays) equiespaciados entre 0 1 con 100 elementos
 x1= np.linspace(0,1,100)
 x2= np.linspace (0,1,100)
@@ -205,11 +180,14 @@ ax.spines['top'].set_visible(False)
 fig.show()
 
 #%%
-alpha1=-3
-betha1=-2
-alpha3=5
-betha3=-1
-r=0.3
+import numpy as np
+import scipy
+import matplotlib.pyplot as plt
+from scipy.optimize import minimize
+from funciones import generate_starting_points
+
+#DATOS
+alpha1=-3;betha1=-2;alpha3=5;betha3=-1;r=0.3
 #DEFINIMOS NUESTRO SISTEMA CON FORMATO SCIPY
 objective_function = lambda x: (alpha1-x[0])**2 +(betha1-x[1])**2 + (x[0]-alpha3)**2+(x[1]-betha3)**2
 
@@ -232,85 +210,3 @@ res= minimize(objective_function,
 
 
 
-# =============================================================================
-# rg=np.random.default_rng(2)
-# 
-# print("CÓDIGO REALIZADO EN CLASE DE FACTOR HUMANO DE LA UNIVERSIDAD DE SEVILLA EN EL CURSO 22/23")
-# 
-# #Parámetros
-# S= 52#Semanas totales
-# I=100#trabajadores
-# c_i=rg.integers(0,2,size=I)
-# J=4
-# a_j=np.array([8,9,12,5])#cuatro configuraciones
-# p_ij=np.zeros((I,J))
-# #numero max de horas totales por trabajador a t completo
-# ra_max=1920
-# #Coste de infradotación
-# c_u=rg.integers(300,4001)
-# #Coste unitario hora sobredotación
-# c_o=rg.integers(200,301)
-# #Demanda del periodo
-# d_s=rg.integers(10000,15001,size=S)
-# Modelo = mip.Model("PNEC.4",sense=mip.MINIMIZE,solver_name=mip.CBC)
-# 
-# #Variables
-# x=[[[Modelo.add_var(name="Trabajador asignado en la semana a configuración", var_type=mip.BINARY) for s in range(S)] for j in range(J)] for i in range(I)]
-# U=[Modelo.add_var(name="Horas no cubiertas", var_type=mip.INTEGER, lb=0, ub=mip.INF) for s in range (S)]
-# O=[Modelo.add_var(name="Horas en exceso", var_type=mip.INTEGER, lb=0, ub=mip.INF) for s in range (S)]
-# WL=[Modelo.add_var(name="Carga del trabajador anual", var_type=mip.INTEGER, lb=0, ub=mip.INF) for i in range (I)]
-# MWL=[Modelo.add_var(name="Carga del trabajador anual respecto de la media trabajadores", var_type=mip.INTEGER, lb=0, ub=mip.INF) for i in range (I)]
-# 
-# #FO
-# Modelo.objective= mip.xsum(c_u*U[s] + c_o*O[s] for s in range (S))+ mip.xsum(MWL[i] for i in range (I))
-# 
-# #Restricciones
-# #1.1 y 1.2
-# for i in range(I):
-#     if (c_i[i]==1):
-#         for s in range (S):
-#             Modelo += xsum(x[i][j][s] for j in range (J))==1
-#             
-# for i in range(I):
-#     if (c_i[i]==0):#ponerlo así por si hay un error humano o leemos otra cosa y no tomase valor 0 ni 1
-#         for s in range (S):
-#             Modelo += xsum(x[i][j][s] for j in range (J))<=1
-# #4
-# for s in range(S):
-#     Modelo+=xsum(a_j[j]*x[i][j][s] for j in range (J) for i in range (I)) + U[s] - O[s] == d_s[s] 
-# #5
-# for i in range(I):
-#     for j in range(J):
-#         Modelo += xsum(x[i][j][s] for s in range (S)) >= p_ij[i,j]*xsum(x[i][j_prima][s] for j_prima in range(J)for s in range (S) )#p_ij[i,j] así lo defino como matriz, aun que se puede llamar como [i][j], pero esta última es más ineficiente, pues haces dos llamadas
-# 
-# #6
-# for i in range (I):
-#     for s in range (s, S-1):
-#         if c_i[i]==0:
-#             Modelo+= xsum(x[i][j][s] for j in range (J))<= xsum(x[i][j][s+1] for j in range (J))
-# 
-# #7
-# for i in range (I):
-#     Modelo+= xsum(a_j[j]*x[i][j][s] for j in range (J) for s in range (S))<= (ra_max/S)*xsum(x[i][j][s] for j in range (J) for s in range (S))
-#                                                                   
-# #8 Cuidado es un sumatorio dentro de un sumatorio.
-# for i in range (I):
-#     Modelo+= WL[i]== xsum((a_j[j]/S) *xsum(x[i][j][s] for s in range (S))for j in range (J))
-# #9
-# for i in range (I):
-#     Modelo+= MWL[i]>= WL[i]- ((xsum(WL[i_prima] for i_prima in range (I) ))/I)
-# #10
-# for i in range (I):
-#     Modelo+= MWL[i]>=  ((xsum(WL[i_prima] for i_prima in range (I) ))/I)-WL[i]
-#     
-# #11 que es la 5
-# 
-# for i in range (I):
-#     if (c_i[i]==1):
-#        Modelo += WL[i] == xsum(a_j[j]*x[i][j][s] for j in range (J) for s in range (S))
-#     elif (c_i[i]==1):
-#         Modelo += WL[i] == xsum(8*(1-x[i][j][s] for j in range (J) for s in range (S))) + xsum(a_j[j]*x[i][j][s] for j in range(J) for s in range (S))
-# 
-# Modelo.optimize()
-# print(Modelo.status)
-# =============================================================================
