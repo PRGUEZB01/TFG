@@ -63,7 +63,7 @@ else:print(sol2.message)
 import mip
 import numpy as np
 from mip import Model, xsum, MINIMIZE, INF, CBC, INTEGER
-
+import sympy as sp
 #Variables
 alpha=[1,3,5,6,8]
 betha=[1,2,1.5,2,5]
@@ -81,8 +81,19 @@ cons=[Modelo.add_var(name="Coordenada y", var_type=INTEGER, lb=-INF, ub=INF) for
 # =============================================================================
 # APLICAR DERIVADAS PARCIALES EN FUNCION DE X,Y Y CONS (LAMBDA) salen (3*(n-2)) restricciones
 # =============================================================================
-for i in range(num_trabajadores):
-    Modelo += mip.xsum(x[i][j] for j in range(dias_año)) ==vacaciones[i]
+
+for i in range(1, n-1):
+    # Definir la función para la i-ésima restricción
+    Modelo += sp.diff(((alpha[0]-x[0])**2+(betha[0]-y[0])**2+(x[n-3]-alpha[n-1])**2+(y[n-3]-betha[n-1])**2+xsum((x[i+1]-x[i])**2 for i in range(n-2)))-cons[i]*(x[i]-alpha[i])**2-cons[i]*(y[i]-betha[i])**2-cons[i]*r**2, x[i])>=0  # Derivada parcial de f con respecto a x[i]
+
+for i in range(1, n-1):
+    # Definir la función para la i-ésima restricción
+    Modelo += sp.diff((x[i]-alpha[i])**2-(y[i]-betha[i])**2-r**2, x[i])>=0
+
+for i in range(1, n-1):
+    # Definir la función para la i-ésima restricción
+    Modelo += sp.diff((x[i]-alpha[i])**2-(y[i]-betha[i])**2-r**2, x[i])>=0
+    
 
 #Objetivo
 Modelo.objective= (alpha[0]-x[0])**2+(betha[0]-y[0])**2+(x[n-3]-alpha[n-1])**2+(y[n-3]-betha[n-1])**2+xsum((x[i+1]-x[i])**2 for i in range(n-2))
