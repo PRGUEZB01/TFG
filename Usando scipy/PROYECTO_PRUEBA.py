@@ -66,8 +66,8 @@ from mip import Model, xsum, MINIMIZE, INF, CBC, INTEGER
 import sympy as sp
 from sympy import diff, symbols
 #Variables
-alpha=[1,3,5,6,8]
-betha=[1,2,1.5,2,5]
+alpha=[1,3,5,6,8, 10]
+betha=[1,2,1.5,2,5, 10]
 r=0.4
 n=len(alpha) #número de circunferencias
 
@@ -78,31 +78,55 @@ x=[Modelo.add_var(name="Coordenada x", var_type=INTEGER, lb=0, ub=INF) for i in 
 y=[Modelo.add_var(name="Coordenada y", var_type=INTEGER, lb=0, ub=INF) for i in range (n-2)]
 cons=[Modelo.add_var(name="Coordenada y", var_type=INTEGER, lb=-INF, ub=INF) for i in range (n-2)]
 
-#Restricciones
-# =============================================================================
-# APLICAR DERIVADAS PARCIALES EN FUNCION DE X,Y Y CONS (LAMBDA) salen (3*(n-2)) restricciones
-# =============================================================================
-x = symbols("x[:{}]".format(n-2), real=True)
-y = symbols("y[:{}]".format(n-2), real=True)
-for i in range(1, n-1):
-    # Definir la función para la i-ésima restricción
-    Modelo += sp.diff(((alpha[0]-x[0])**2+(betha[0]-y[0])**2+(x[n-3]-alpha[n-1])**2+(y[n-3]-betha[n-1])**2+xsum((x[i+1]-x[i])**2 for i in range(n-2)))-cons[i]*(x[i]-alpha[i])**2-cons[i]*(y[i]-betha[i])**2-cons[i]*r**2, x[i])>=0  # Derivada parcial de f con respecto a x[i]
 
-for i in range(1, n-1):
-    # Definir la función para la i-ésima restricción
-    Modelo += sp.diff((x[i]-alpha[i])**2-(y[i]-betha[i])**2-r**2, x[i])>=0
+#Restricciones. 
 
-for i in range(1, n-1):
-    # Definir la función para la i-ésima restricción
-    Modelo += sp.diff((x[i]-alpha[i])**2-(y[i]-betha[i])**2-r**2, x[i])>=0
+Modelo+= -2*(x[1]-x[0])+2*cons[0]*(x[0]-alpha[1])==0
+Modelo+= -2*(y[1]-y[0])-2*cons[0]*(y[0]-betha[1])==0
+
+for i in range (1, n-4):
+    Modelo+= 2*(x[i]-x[i-1])-2*(x[i+1]-x[i])-2*cons[i]*(x[i]-alpha[i+1])==0
+    Modelo+= 2*(y[i]-y[i-1])-2*(y[i+1]-y[i])+2*cons[i]*(y[i]-betha[i+1])==0
+
+
+Modelo+= 2*(x[n-3]-x[n-4])+2*(x[n-3]-alpha[n-4])==0
+Modelo+= 2*(y[n-3]-y[n-4])+2*(y[n-3]*betha[n-4])==0
+
+
+for i in range (n-3):
+    if i!=n-3:
+       Modelo+=  -(x[i]-alpha(i+1))**2+(y[i]-betha[i+1])+r**2==0
+    else:
+       Modelo+=  -(x[i]-alpha(i-1))**2+(y[i]-betha[i-1])+r**2==0
     
-
 #Objetivo
-Modelo.objective= (alpha[0]-x[0])**2+(betha[0]-y[0])**2+(x[n-3]-alpha[n-1])**2+(y[n-3]-betha[n-1])**2+xsum((x[i+1]-x[i])**2 for i in range(n-2))
+Modelo.objective= xsum((x[i+1]-x[i])**2 for i in range(n-2))+ xsum((y[j+1]-y[j])**2 for j in range (n-2) )
+#Modelo.objective= (alpha[0]-x[0])**2+(betha[0]-y[0])**2+(x[n-3]-alpha[n-1])**2+(y[n-3]-betha[n-1])**2+xsum((x[i+1]-x[i])**2 for i in range(n-2))
 #Optimizamos el modelo y vemos si ha dado resultado. 
 Modelo.optimize()
 print(Modelo.status)
 
+# =============================================================================
+# #Restricciones
+# # =============================================================================
+# # APLICAR DERIVADAS PARCIALES EN FUNCION DE X,Y Y CONS (LAMBDA) salen (3*(n-2)) restricciones
+# # =============================================================================
+# x = symbols("x[:{}]".format(n-2), real=True)
+# y = symbols("y[:{}]".format(n-2), real=True)
+# for i in range(1, n-1):
+#     # Definir la función para la i-ésima restricción
+#     Modelo += sp.diff(((alpha[0]-x[0])**2+(betha[0]-y[0])**2+(x[n-3]-alpha[n-1])**2+(y[n-3]-betha[n-1])**2+xsum((x[i+1]-x[i])**2 for i in range(n-2)))-cons[i]*(x[i]-alpha[i])**2-cons[i]*(y[i]-betha[i])**2-cons[i]*r**2, x[i])>=0  # Derivada parcial de f con respecto a x[i]
+# 
+# for i in range(1, n-1):
+#     # Definir la función para la i-ésima restricción
+#     Modelo += sp.diff((x[i]-alpha[i])**2-(y[i]-betha[i])**2-r**2, x[i])>=0
+# 
+# for i in range(1, n-1):
+#     # Definir la función para la i-ésima restricción
+#     Modelo += sp.diff((x[i]-alpha[i])**2-(y[i]-betha[i])**2-r**2, x[i])>=0
+#     
+# 
+# =============================================================================  
 
 #%%
 
