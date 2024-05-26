@@ -91,19 +91,20 @@ opciones = {
 
 Restriccion={'type': 'eq', 'fun': rectriccion, 'args': (num_elementos, size, alpha, betha, r)}
 
-print("Restricción 1 (antes):", rectriccion(var, num_elementos, size, alpha, betha, r))
+print("VALOR DEL RESULTADO RESTRICCIÓN PARA PRIMERA ITERACIÓN", rectriccion(var, num_elementos, size, alpha, betha, r), "Debe coincidir con el valor del ejercicio resuelto justo debajo")
 
 sol= minimize(FO, var, args=(size), method='Powell', constraints=Restriccion, options=opciones)
-print("Variables optimizadas:", sol.x)
-print("Valor de la función objetivo en el punto óptimo:", sol.fun)
-print("¿La optimización tuvo éxito?:", sol.success)
-print("Mensaje de la optimización:", sol.message)
-print("Número de iteraciones:", sol.nit)
+# print("Variables optimizadas:", sol.x)
+# print("Valor de la función objetivo en el punto óptimo:", sol.fun)
+# print("¿La optimización tuvo éxito?:", sol.success)
+# print("Mensaje de la optimización:", sol.message)
+# print("Número de iteraciones:", sol.nit)
 
 
 
 #%%
 
+#Resolución del modelo visto arriba para el punto inicial dado. 
 import numpy as np
 
 #################------------Declaro Variables y datos---------------#################
