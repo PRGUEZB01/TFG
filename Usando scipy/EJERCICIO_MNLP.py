@@ -65,11 +65,13 @@ def FO(var, size):
 
 #################------------Definición datos y variables del problema---------------#################
 
+
+
 alpha=[1,3,5,6,8]
 betha=[1,2,1.5,2,5]
 r=0.5
 #Valores iniciales del bucle. 
-x=[3,5,6]
+x=[2,2,2]
 y=[2.5,4.5,5.5]
 z=[0.2,0.3,0.4]
 
@@ -79,10 +81,11 @@ size= [len(x), len(x+y)]
 num_elementos= 3*(n-2)
 #Vector con los valores inciales a resolver
 var= np.concatenate((x,y,z))
+print(var)
 
 #Compruebo que todo funcione correctamente. 
 opciones = {
-    'maxiter': 1000,  # Aumenta el número máximo de iteraciones
+    'maxiter': 6,  # Aumenta el número máximo de iteraciones
     'ftol': 1e-9,     # Ajusta la tolerancia de la función
     'disp': True      # Muestra el proceso de optimización
 }
@@ -91,10 +94,11 @@ opciones = {
 
 Restriccion={'type': 'eq', 'fun': rectriccion, 'args': (num_elementos, size, alpha, betha, r)}
 
+    
 print("VALOR DEL RESULTADO RESTRICCIÓN PARA PRIMERA ITERACIÓN", rectriccion(var, num_elementos, size, alpha, betha, r), "Debe coincidir con el valor del ejercicio resuelto justo debajo")
 
-sol= minimize(FO, var, args=(size), method='Powell', constraints=Restriccion, options=opciones)
-# print("Variables optimizadas:", sol.x)
+sol= minimize(FO, var, args=(size), method='CG', constraints=Restriccion, options=opciones)
+print("Variables optimizadas:", sol.x)
 # print("Valor de la función objetivo en el punto óptimo:", sol.fun)
 # print("¿La optimización tuvo éxito?:", sol.success)
 # print("Mensaje de la optimización:", sol.message)
