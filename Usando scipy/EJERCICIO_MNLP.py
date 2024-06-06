@@ -14,26 +14,28 @@ def rectriccion(var,n, size, alpha, betha, r):
     y=var[size[0]:size[1]]
     cons=var[size[1]:]
 
-    print(x)
-    print(y)
-    print(cons)
+    #print(x)
+    #print(y)
+    #print(cons)
 
     #Declaro las variables Xi-1: x_d (down), Xi: x_m (medium), Xi+1: x_u (up)
-    x_d=x[:-2]
-    x_m=x[1:-1]
-    x_u=x[2:]
-    y_d=y[:-2]
-    y_m=y[1:-1]
-    y_u=y[2:]
-    #Declaro las constantes lambda cm: No tiene en cuenta la primera y última circunferencia pues partimos de su centro
-    cm=cons[1:-1]
-    
-    #Declaro alpha y betha para el bucle, no tiene en cuenta las dos primeras y dos últimas circunferencias. 
-    a=alpha[1:-2]
-    b=betha[1:-2]
-    
-    # m: Separa en el bucle loas rectricciones de las derivadas parciales de x, y, lambda. 
-    m=size[0]
+# =============================================================================
+#     x_d=x[:-2]
+#     x_m=x[1:-1]
+#     x_u=x[2:]
+#     y_d=y[:-2]
+#     y_m=y[1:-1]
+#     y_u=y[2:]
+#     #Declaro las constantes lambda cm: No tiene en cuenta la primera y última circunferencia pues partimos de su centro
+#     cm=cons[1:-1]
+#     
+#     #Declaro alpha y betha para el bucle, no tiene en cuenta las dos primeras y dos últimas circunferencias. 
+#     a=alpha[1:-2]
+#     b=betha[1:-2]
+#     
+#     # m: Separa en el bucle loas rectricciones de las derivadas parciales de x, y, lambda. 
+#     m=size[0]
+# =============================================================================
     res=np.zeros(n)
 
     #Restricciones
@@ -83,7 +85,7 @@ def FO(var, size):
     for i in range(len(obj)): resultado= resultado+obj[i]
   
     resultado += (x[0]-1)**2 + (y[0]-1)**2
-    resultado += (x[-1]-8)**2 + (y[-1]-5)**2
+    resultado += (8-x[-1])**2 + (5-y[-1])**2
 
     return resultado
 
@@ -93,7 +95,7 @@ alpha=[1,3,5,6,8]
 betha=[1,2,1.5,2,5]
 r=1
 #Valores iniciales del bucle. 
-x=[3,5,6]
+x=[4,6,7]
 y=[2,1.5,2]
 z=[1,2,3]
 
@@ -107,7 +109,7 @@ print("var", var)
 
 #Compruebo que todo funcione correctamente. 
 opciones = {
-    'maxiter': 7,  # Aumenta el número máximo de iteraciones
+    'maxiter': 100,  # Aumenta el número máximo de iteraciones
     'ftol': 1e-9,     # Ajusta la tolerancia de la función
     'disp': True      # Muestra el proceso de optimización
 }
@@ -116,10 +118,10 @@ opciones = {
 
 Restriccion={'type': 'eq', 'fun': rectriccion, 'args': (num_elementos, size, alpha, betha, r)}
 
-    
-print("VALOR DEL RESULTADO RESTRICCIÓN PARA PRIMERA ITERACIÓN", rectriccion(var, num_elementos, size, alpha, betha, r), "Debe coincidir con el valor del ejercicio resuelto justo debajo")
+for i in range (len(x)-1): Restriccion={'type': 'eq', 'fun': rectriccion, 'args': (num_elementos, size, alpha, betha, r)}
+#print("VALOR DEL RESULTADO RESTRICCIÓN PARA PRIMERA ITERACIÓN", rectriccion(var, num_elementos, size, alpha, betha, r), "Debe coincidir con el valor del ejercicio resuelto justo debajo")
 
-sol= minimize(FO, var, args=(size), method='newton', constraints=Restriccion, options=opciones)
+sol= minimize(FO, var, args=(size), method='SLSQP', constraints=Restriccion, options=opciones)
 print("Variables optimizadas:", sol.x)
 # print("Valor de la función objetivo en el punto óptimo:", sol.fun)
 # print("¿La optimización tuvo éxito?:", sol.success)
