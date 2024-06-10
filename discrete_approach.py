@@ -26,7 +26,6 @@ def get_circle_points(x, y, r, n):
     return coordenadas
 
 
-
 def plot_points(point_list, h, k, r):
     x , y =[], []
     additional_x , additional_y= [], []
@@ -71,6 +70,55 @@ def plot_points(point_list, h, k, r):
     
     # Mostramos la gráfica
     plt.show()
+
+
+
+def compute_forward_weights(previous_points, weights, forward_points):
+    '''
+    Compute forward weigths for the list of forward_points given the previous_points and its weights:
+    
+    The return values must be:
+     
+    1- a list of weights for the forward points with the same dimension: len(result_weights) == len(forward_points)
+    2- a list of predecesors (prev) with the same dimension: len(prev) == len(forward_points)
+
+    Where:
+     
+    result_weights[i] = M and prev[i] = j if M is the minimum value so that:
+
+    M = d(previous_points[j], forward_points[i]) + weights[j]
+
+    (d is the euclidian distance between two points)
+
+    ---------------------------
+
+    *** Example 1: 
+    previous_points = [(0,0), (0.5, 0.5)]
+    weights = [1, 10]
+    forward_points = [(1, 0)]
+
+    forward_weights, prev = compute_forward_weights(previous_points, weights, forward_points)
+
+    # forward_weights: [2]
+    # prev: [0]
+    # because d(previous_points[0],forward_points[0])+weights[0]=2 
+    # Notice that the previous is (0,0) despite the point (0.5, 0.5) is nearer to (1,0), this is because the weight of (0.5, 0.5) is too large (10) 
+    
+    ---------------------------
+    
+    *** Example 2: 
+    previous_points = [(0,0), (0.5, 0.5), (0,1)]
+    weights = [1, 10, 1]
+    forward_points = [(1,0), (1,1)]
+
+    forward_weights, prev = compute_forward_weights(previous_points, weights, forward_points)
+
+    # forward_weights: [2, 2]
+    # prev: [0, 2]
+    # because d(previous_points[0],forward_points[0])+weights[0]=2 and d(previous_points[2],forward_points[1])+weights[2]=2 
+
+    '''
+    pass
 
 
 if __name__ == "__main__":
