@@ -18,20 +18,20 @@ def build_contrains(alphas, betas, radii, n):
     constrains = []
     for i in range(1,n+1):
     
-        def cxi(var):
+        def cxi(var, index = i):
             x=np.concatenate(([alphas[0]], var[:n],[alphas[-1]]), axis=None)
             u=var[2*n:]
-            return -2*(x[i-1]-x[i]) + 2*(x[i]-x[i+1]) - 2*u[i-1]*(x[i]-alphas[i]) 
+            return -2*(x[index-1]-x[index]) + 2*(x[index]-x[index+1]) - 2*u[index-1]*(x[index]-alphas[index]) 
             
-        def cyi(var):
+        def cyi(var, index = i):
             y=np.concatenate(([betas[0]], var[n:2*n], [betas[-1]]), axis=None)
             u=var[2*n:]
-            return -2*(y[i-1]-y[i]) + 2*(y[i]-y[i+1]) - 2*u[i-1]*(y[i]-betas[i]) 
+            return -2*(y[index-1]-y[index]) + 2*(y[index]-y[index+1]) - 2*u[index-1]*(y[index]-betas[index]) 
 
-        def cui(var):
+        def cui(var, index = i):
             x=np.concatenate(([alphas[0]], var[:n],[alphas[-1]]), axis=None)
             y=np.concatenate(([betas[0]], var[n:2*n], [betas[-1]]), axis=None)
-            return (x[i] - alphas[i])**2 + (y[i] - betas[i])**2 - radii[i-1]**2  
+            return (x[index] - alphas[index])**2 + (y[index] - betas[index])**2 - radii[index-1]**2  
  
         # constrains.append(NonlinearConstraint(cxi, -np.inf, np.inf)) 
         # constrains.append(NonlinearConstraint(cyi, -np.inf, np.inf)) 
@@ -42,7 +42,6 @@ def build_contrains(alphas, betas, radii, n):
         constrains.append({'type': 'eq', 'fun': cui})
 
     return constrains
-
 
 if __name__ == "__main__":
     
@@ -55,15 +54,16 @@ if __name__ == "__main__":
     var = np.random.rand(3*n)
     options = {
         'maxiter': 1000,  # Aumenta el número máximo de iteraciones
-        # 'ftol': 1e-9,     # Ajusta la tolerancia de la función
+        # 'gtol': 1e-16,     # Ajusta la tolerancia de la función
         'disp': True      # Muestra el proceso de optimización
     }
-    result= minimize(objective_function, var, args=(alpha[0], beta[-1], alpha[0], beta[-1], n), method='trust-constr', constraints=build_contrains(alpha, beta, radii, n), options=options)
-
-    # result = differential_evolution(objective_function, constraints=build_contrains(alpha, beta, radii, n))
+    result= minimize(objective_function, var, args=(alpha[0], beta[0], alpha[-1], beta[-1], n), method='trust-constr', constraints=build_contrains(alpha, beta, radii, n), options=options)
 
     print('Optimal solution:', result.x)
     print('Objective value at optimal solution:', result.fun)
 
-    print()
-    print("result", result)
+    print("Testing:")
+    print("c1", (result.x[0]-alpha[1])**2+(result.x[3]-beta[1])**2)
+    print("c2", (result.x[1]-alpha[2])**2+(result.x[4]-beta[2])**2)
+    print("c3", (result.x[2]-alpha[3])**2+(result.x[5]-beta[3])**2)
+    print("fo", objective_function(result.x,alpha[0], beta[0], alpha[-1], beta[-1], n))
