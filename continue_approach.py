@@ -43,6 +43,35 @@ def build_contrains(alphas, betas, radii, n):
 
     return constrains
 
+
+## Returns different extrema, it may be wrong. Revise
+def build_contrains_manually(alphas, betas, radii, n):
+
+    x0 = lambda x: -2*(x[0]-alphas[0]) + 2*(x[0]-x[1]) - 2*x[6]*(x[0]-alphas[1])
+    x1 = lambda x: -2*(x[1]-x[0]) + 2*(x[1]-x[2]) - 2*x[7]*(x[1]-alphas[2])
+    x2 = lambda x: -2*(x[2]-x[1]) + 2*(x[2]-alphas[4]) - 2*x[8]*(x[2]-alphas[3])
+
+    y0 = lambda x: -2*(x[3]-betas[0]) + 2*(x[3]-x[4]) - 2*x[6]*(x[3]-betas[1])
+    y1 = lambda x: -2*(x[4]-x[3]) + 2*(x[4]-x[5]) - 2*x[7]*(x[4]-betas[2])
+    y2 = lambda x: -2*(x[5]-x[4]) + 2*(x[5]-betas[4]) - 2*x[8]*(x[5]-betas[3])
+
+    u0 = lambda x: (x[0] - alphas[1])**2 + (x[3] - betas[1])**2 - radii[0]**2
+    u1 = lambda x: (x[1] - alphas[2])**2 + (x[4] - betas[2])**2 - radii[1]**2
+    u2 = lambda x: (x[2] - alphas[3])**2 + (x[5] - betas[3])**2 - radii[2]**2
+
+    return [
+        {'type': 'eq', 'fun': x0}, 
+        {'type': 'eq', 'fun': x1}, 
+        {'type': 'eq', 'fun': x2},
+        {'type': 'eq', 'fun': y0}, 
+        {'type': 'eq', 'fun': y1}, 
+        {'type': 'eq', 'fun': y2},
+        {'type': 'eq', 'fun': u0}, 
+        {'type': 'eq', 'fun': u1}, 
+        {'type': 'eq', 'fun': u2} 
+    ]
+
+
 if __name__ == "__main__":
     
     # alpha and beta are the centers of circles
@@ -58,12 +87,13 @@ if __name__ == "__main__":
         'disp': True      # Muestra el proceso de optimización
     }
     result= minimize(objective_function, var, args=(alpha[0], beta[0], alpha[-1], beta[-1], n), method='trust-constr', constraints=build_contrains(alpha, beta, radii, n), options=options)
+    # result= minimize(objective_function, var, args=(alpha[0], beta[0], alpha[-1], beta[-1], n), method='trust-constr', constraints=build_contrains_manually(alpha, beta, radii, n), options=options)
 
     print('Optimal solution:', result.x)
     print('Objective value at optimal solution:', result.fun)
 
-    print("Testing:")
+    print("Testing")
     print("c1", (result.x[0]-alpha[1])**2+(result.x[3]-beta[1])**2)
     print("c2", (result.x[1]-alpha[2])**2+(result.x[4]-beta[2])**2)
     print("c3", (result.x[2]-alpha[3])**2+(result.x[5]-beta[3])**2)
-    print("fo", objective_function(result.x,alpha[0], beta[0], alpha[-1], beta[-1], n))
+    print("fo", objective_function(result.x, alpha[0], beta[0], alpha[-1], beta[-1], n))
