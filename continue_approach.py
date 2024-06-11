@@ -17,12 +17,12 @@ def build_contrains(alphas, betas, radii, n):
 
     constrains = []
     for i in range(1,n+1):
-    
+
         def cxi(var, index = i):
             x=np.concatenate(([alphas[0]], var[:n],[alphas[-1]]), axis=None)
             u=var[2*n:]
             return -2*(x[index-1]-x[index]) + 2*(x[index]-x[index+1]) - 2*u[index-1]*(x[index]-alphas[index]) 
-            
+
         def cyi(var, index = i):
             y=np.concatenate(([betas[0]], var[n:2*n], [betas[-1]]), axis=None)
             u=var[2*n:]
@@ -32,7 +32,7 @@ def build_contrains(alphas, betas, radii, n):
             x=np.concatenate(([alphas[0]], var[:n],[alphas[-1]]), axis=None)
             y=np.concatenate(([betas[0]], var[n:2*n], [betas[-1]]), axis=None)
             return (x[index] - alphas[index])**2 + (y[index] - betas[index])**2 - radii[index-1]**2  
- 
+
         # constrains.append(NonlinearConstraint(cxi, -np.inf, np.inf)) 
         # constrains.append(NonlinearConstraint(cyi, -np.inf, np.inf)) 
         # constrains.append(NonlinearConstraint(cui, -np.inf, np.inf)) 

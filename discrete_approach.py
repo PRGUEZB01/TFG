@@ -38,25 +38,42 @@ def plot_points(point_list, h, k, r):
         # Puntos en el borde de la primera circunferencia 
         additional_x.append([point_list[l][i][0] for i in range(len(point_list[l]))])
         additional_y.append([point_list[l][i][1] for i in range(len(point_list[l]))])
+   
     
-    
-    
+# =============================================================================
+#    puntos= np.linspace(0, 2*math.pi, 100)
+#    adicionales=[[1,3],[3,3]]
+#    x=[]
+#    y=[]
+# 
+#    for i in range(len(puntos)):
+#        x.append(2+math.cos(puntos[i]))
+#        y.append(3+math.sin(puntos[i]))
+# 
+# 
+#    plt.figure(figsize=(6,6))
+# 
+#    plt.plot(x,y, label='circunferencia')
+# 
+#    plt.scatter(adicionales[0],adicionales[1], color='blue', label="Colores centro")
+#     
+# =============================================================================
     
     # Creamos la gráfica en conjunto
     plt.figure(figsize=(6, 6))
     
     for i in range(len(point_list)):
         aux=1
-        plt.plot(x[i], y[i], label='Circunferencia'+str(i))
+       # plt.plot(x[i], y[i])
     
         # Añadimos los puntos adicionales
-        plt.scatter(additional_x[i], additional_y[i], color='blue', zorder=5, label='Puntos adicionales')
+        plt.scatter(additional_x[i], additional_y[i], color='blue', zorder=5, )
         if i<len(point_list)-1:
-            plt.plot([h[i], h[i+1]], [k[i], k[i+1]], linestyle='--', color='black', label='Línea entre centros')
+            plt.plot([h[i], h[i+1]], [k[i], k[i+1]], linestyle='--', color='black')
         
         aux=aux+1
-    # Configuramos la visualización
-    plt.scatter(h, k, color='red', label='Centro (3, 2)')  # Marcamos el centro
+    # Configuramos la visualización. #Pinta todos los centros, ya que pinta el vector, hace plot de todo el vector, tanto scatter, como plot. 
+    plt.scatter(h, k, color='red')  # Marcamos el centro
     plt.xlabel('x')
     plt.ylabel('y')
     plt.title('Circunferencia con puntos adicionales')
@@ -74,7 +91,47 @@ def plot_points(point_list, h, k, r):
 
 
 def compute_forward_weights(previous_points, weights, forward_points):
-    '''
+    
+  
+    #Matriz que se devolverá con los pesos calculados de todos los puntos
+    forward_weights=[]
+    
+    #Voy calculando los pesos por parejas de circunferencias. 
+    for k in range (len(forward_points)):
+        
+        W_results=[]
+        #Obtengo los vectores de pesos de los fordward_points con cada previous point
+        for i in range(len(forward_points[k][0])):
+            
+            valores=[]
+            for j in range(len(previous_points[k][0])):
+                
+                calculo=math.sqrt((previous_points[k][0][j]-forward_points[k][0][i])**2 + (previous_points[k][1][j]-forward_points[k][1][i])**2)+weights[j]
+                valores.append(calculo)
+            #Contiene todos los pesos calculados de los puntos
+            W_results.append(valores)
+            
+        
+        #
+        forward_weights_circ=[0 for i in range(len(forward_points[k][0]))]
+        x_ini=[0 for i in range(len(forward_points[k][0]))]
+        y_ini=[0 for i in range(len(forward_points[k][0]))]
+        
+        #Para cada forward point voy a buscar el peso con mínimo valor y lo voy a asignar al vector que devuelve los pesos mínimos
+        for i in range(len(forward_points[k][0])):
+            I= min(W_results[i])
+            forward_weights_circ[i]=I
+            
+            #Para la primera circunferencia, la posición donde se encuentra el peso mínimo es la misma donde está el punto que me lo proporcionó 
+            if k==0:
+                posicion=W_results.index(I)
+                x_ini[i]=previous_points[0][0][posicion]
+                y_ini[i]=previous_points[0][1][posicion]
+                
+        forward_weights.append(forward_weights_circ)
+        
+        return x_ini, y_ini, forward_weights
+        '''
     Compute forward weigths for the list of forward_points given the previous_points and its weights:
     
     The return values must be:
@@ -123,9 +180,12 @@ def compute_forward_weights(previous_points, weights, forward_points):
 
 if __name__ == "__main__":
 
+    #El numero de puntos es: 
+        
+    #
     x, y = 0, 0
     radio = 1
-    n = 10
+    n = 5
 
     points = get_circle_points(x, y, radio, n)
     # Hasta aqui paso 1
@@ -133,12 +193,12 @@ if __name__ == "__main__":
 
     x, y = 3, 3
     radio = 1
-    n = 140
+    n = 3
     points2 = get_circle_points(x, y, radio, n)
 
     x, y = 5,6
     radio = 1
-    n = 140
+    n = 5
     points3 = get_circle_points(x, y, radio, n)
 
 
@@ -148,6 +208,10 @@ if __name__ == "__main__":
     betha=(0,3,6)
     plot_points(point_list, alpha, betha, radio)
     # Hasta aqui paso 2
+    
+    W_ini=[0,0,0,0,0]
+    x_ini, y_ini, forward_weights=compute_forward_weights(point_list,W_ini, point_list[1:])
+    
     
 # =============================================================================
 # 
