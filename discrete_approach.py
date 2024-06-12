@@ -97,41 +97,58 @@ def compute_forward_weights(previous_points, weights, forward_points):
     forward_weights=[]
     
     #Voy calculando los pesos por parejas de circunferencias. 
-    for k in range (len(forward_points)):
-        
+    
+    for k in range(len(forward_points)):
+       
         W_results=[]
         #Obtengo los vectores de pesos de los fordward_points con cada previous point
-        for i in range(len(forward_points[k][0])):
+        
+        for i in range(len(forward_points[k])):
             
-            valores=[]
-            for j in range(len(previous_points[k][0])):
-                
-                calculo=math.sqrt((previous_points[k][0][j]-forward_points[k][0][i])**2 + (previous_points[k][1][j]-forward_points[k][1][i])**2)+weights[j]
-                valores.append(calculo)
-            #Contiene todos los pesos calculados de los puntos
+            valores=[0 for i in range(len(previous_points[k]))]
+            
+            if k==0:
+                for j in range(len(previous_points[k])):
+                    
+                    valores[j]=math.sqrt((previous_points[k][j][0]-forward_points[k][i][0])**2 + (previous_points[k][j][1]-forward_points[k][i][1])**2)+weights[j]
+            #Para el resto de circunferencias se usan los mínimos de los pesos que hemos calculado. 
+            else:    
+               
+                for j in range(len(previous_points[k])):
+                    
+                   valores[j]=math.sqrt((previous_points[k][j][0]-forward_points[k][i][0])**2 + (previous_points[k][j][1]-forward_points[k][i][1])**2)+forward_weights[k-1][j]
+              
+            
+            #Contiene todos los pesos calculados de los puntos de la circunferencia k 
+            
             W_results.append(valores)
-            
+                    
         
-        #
-        forward_weights_circ=[0 for i in range(len(forward_points[k][0]))]
-        x_ini=[0 for i in range(len(forward_points[k][0]))]
-        y_ini=[0 for i in range(len(forward_points[k][0]))]
-        
+        #Vector que recoge los pesos mínimos de cada circunferencia
+        forward_weights_circ=[0 for i in range(len(forward_points[k]))]
+        if k==0:
+            x_ini=[0 for i in range(len(forward_points[k]))]
+            y_ini=[0 for i in range(len(forward_points[k]))]
         #Para cada forward point voy a buscar el peso con mínimo valor y lo voy a asignar al vector que devuelve los pesos mínimos
-        for i in range(len(forward_points[k][0])):
+        for i in range(len(forward_points[k])):
+            
             I= min(W_results[i])
             forward_weights_circ[i]=I
             
             #Para la primera circunferencia, la posición donde se encuentra el peso mínimo es la misma donde está el punto que me lo proporcionó 
             if k==0:
-                posicion=W_results.index(I)
-                x_ini[i]=previous_points[0][0][posicion]
-                y_ini[i]=previous_points[0][1][posicion]
                 
+                posicion=W_results[i].index(I)
+                
+                x_ini[i]=(previous_points[0][0][posicion])
+                y_ini[i]=(previous_points[0][1][posicion])
+                print("ESTASSS", x_ini, y_ini)
+            
         forward_weights.append(forward_weights_circ)
         
-        return x_ini, y_ini, forward_weights
-        '''
+    return x_ini, y_ini, forward_weights
+    
+"""
     Compute forward weigths for the list of forward_points given the previous_points and its weights:
     
     The return values must be:
@@ -176,7 +193,7 @@ def compute_forward_weights(previous_points, weights, forward_points):
 
     '''
     pass
-
+"""
 
 if __name__ == "__main__":
 
@@ -193,7 +210,7 @@ if __name__ == "__main__":
 
     x, y = 3, 3
     radio = 1
-    n = 3
+    n = 5
     points2 = get_circle_points(x, y, radio, n)
 
     x, y = 5,6
@@ -201,16 +218,29 @@ if __name__ == "__main__":
     n = 5
     points3 = get_circle_points(x, y, radio, n)
 
+    x, y = 7,9
+    radio = 1
+    n = 5
+    points4 = get_circle_points(x, y, radio, n)
 
+    x, y = 8,10
+    radio = 1
+    n = 5
+    points5 = get_circle_points(x, y, radio, n)
 
-    point_list = [points, points2, points3]
-    alpha=(0,3,5)
-    betha=(0,3,6)
-    plot_points(point_list, alpha, betha, radio)
+    point_list = [points, points2, points3,points4,points5]
+    alpha=(0,3,5,7,8)
+    betha=(0,3,6,9,10)
+    # plot_points(point_list, alpha, betha, radio)
     # Hasta aqui paso 2
     
     W_ini=[0,0,0,0,0]
+    #print("Lista de puntos", point_list, "\n", W_ini, "\n forward_points \n", point_list[1:])
     x_ini, y_ini, forward_weights=compute_forward_weights(point_list,W_ini, point_list[1:])
+    print("\n \n", x_ini, y_ini)
+    
+    for i in range(len(forward_weights)):
+        print(f"\n Pesos circunferencia {i}: ", forward_weights[i])
     
     
 # =============================================================================
