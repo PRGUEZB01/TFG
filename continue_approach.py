@@ -97,3 +97,9 @@ if __name__ == "__main__":
     print("c2", (result.x[1]-alpha[2])**2+(result.x[4]-beta[2])**2)
     print("c3", (result.x[2]-alpha[3])**2+(result.x[5]-beta[3])**2)
     print("fo", objective_function(result.x, alpha[0], beta[0], alpha[-1], beta[-1], n))
+
+    P0 = (alpha[0], beta[0])
+    P1 = (result.x[0], result.x[3])
+    P2 = (result.x[1], result.x[4])
+    P3 = (result.x[2], result.x[5])
+    P4 = (alpha[-1], beta[-1])

@@ -90,65 +90,12 @@ def plot_points(point_list, h, k, r):
 
 
 
+def euclidian_dist(P1, P2):
+    return math.sqrt((P1[0]-P2[0])**2 + (P1[1]-P2[1])**2)
+
+
 def compute_forward_weights(previous_points, weights, forward_points):
-    
-  
-    #Matriz que se devolverá con los pesos calculados de todos los puntos
-    forward_weights=[]
-    
-    #Voy calculando los pesos por parejas de circunferencias. 
-    
-    for k in range(len(forward_points)):
-       
-        W_results=[]
-        #Obtengo los vectores de pesos de los fordward_points con cada previous point
-        
-        for i in range(len(forward_points[k])):
-            
-            valores=[0 for i in range(len(previous_points[k]))]
-            
-            if k==0:
-                for j in range(len(previous_points[k])):
-                    
-                    valores[j]=math.sqrt((previous_points[k][j][0]-forward_points[k][i][0])**2 + (previous_points[k][j][1]-forward_points[k][i][1])**2)+weights[j]
-            #Para el resto de circunferencias se usan los mínimos de los pesos que hemos calculado. 
-            else:    
-               
-                for j in range(len(previous_points[k])):
-                    
-                   valores[j]=math.sqrt((previous_points[k][j][0]-forward_points[k][i][0])**2 + (previous_points[k][j][1]-forward_points[k][i][1])**2)+forward_weights[k-1][j]
-              
-            
-            #Contiene todos los pesos calculados de los puntos de la circunferencia k 
-            
-            W_results.append(valores)
-                    
-        
-        #Vector que recoge los pesos mínimos de cada circunferencia
-        forward_weights_circ=[0 for i in range(len(forward_points[k]))]
-        if k==0:
-            x_ini=[0 for i in range(len(forward_points[k]))]
-            y_ini=[0 for i in range(len(forward_points[k]))]
-        #Para cada forward point voy a buscar el peso con mínimo valor y lo voy a asignar al vector que devuelve los pesos mínimos
-        for i in range(len(forward_points[k])):
-            
-            I= min(W_results[i])
-            forward_weights_circ[i]=I
-            
-            #Para la primera circunferencia, la posición donde se encuentra el peso mínimo es la misma donde está el punto que me lo proporcionó 
-            if k==0:
-                
-                posicion=W_results[i].index(I)
-                
-                x_ini[i]=(previous_points[0][0][posicion])
-                y_ini[i]=(previous_points[0][1][posicion])
-                print("ESTASSS", x_ini, y_ini)
-            
-        forward_weights.append(forward_weights_circ)
-        
-    return x_ini, y_ini, forward_weights
-    
-"""
+    """
     Compute forward weigths for the list of forward_points given the previous_points and its weights:
     
     The return values must be:
@@ -194,6 +141,85 @@ def compute_forward_weights(previous_points, weights, forward_points):
     '''
     pass
 """
+ 
+    #Matriz que se devolverá con los pesos calculados de todos los puntos
+    forward_weights=[]
+    indices=[]
+    
+    #Voy calculando los pesos por parejas de circunferencias. 
+    for i in range(len(forward_points)):
+
+        weightsij = [euclidian_dist(forward_points[i], pj) + wj for pj, wj in zip(previous_points, weights)] 
+        minij = min(weightsij)
+        indexij = weightsij.index(minij)
+
+        forward_weights.append(minij)
+        indices.append(indexij)
+
+    return forward_weights, indices 
+
+    #     if k==0:
+    #         for j in range(len(previous_points[k])):
+
+    #             valores[j] = euclidian_dist(previous_points[k][j], forward_points[k][i]) + weights[j]
+    #             # valores[j]=math.sqrt((previous_points[k][j][0]-forward_points[k][i][0])**2 + (previous_points[k][j][1]-forward_points[k][i][1])**2)+weights[j]
+    #     #Para el resto de circunferencias se usan los mínimos de los pesos que hemos calculado. 
+    #     else:    
+            
+    #         for j in range(len(previous_points[k])):
+                
+    #             valores[j]=euclidian_dist(previous_points[k][j], forward_points[k][i])+forward_weights[k-1][j]
+            
+        
+    #     #Contiene todos los pesos calculados de los puntos de la circunferencia k 
+        
+    #     W_results.append(valores)
+                    
+        
+    #     #Vector que recoge los pesos mínimos de cada circunferencia
+    #     forward_weights_circ=[0 for i in range(len(forward_points[k]))]
+    #     if k==0:
+    #         x_ini=[0 for i in range(len(forward_points[k]))]
+    #         y_ini=[0 for i in range(len(forward_points[k]))]
+    #     #Para cada forward point voy a buscar el peso con mínimo valor y lo voy a asignar al vector que devuelve los pesos mínimos
+    #     for i in range(len(forward_points[k])):
+            
+    #         I= min(W_results[i])
+    #         forward_weights_circ[i]=I
+            
+    #         #Para la primera circunferencia, la posición donde se encuentra el peso mínimo es la misma donde está el punto que me lo proporcionó 
+    #         if k==0:
+                
+    #             posicion=W_results[i].index(I)
+                
+    #             x_ini[i]=(previous_points[0][0][posicion])
+    #             y_ini[i]=(previous_points[0][1][posicion])
+    #             print("ESTASSS", x_ini, y_ini)
+            
+    #     forward_weights.append(forward_weights_circ)
+        
+    # return x_ini, y_ini, forward_weights
+
+
+
+def compute_discrete_opt(circs):
+    """
+    circs es una lista de circunferencias -> lista de listas de puntos (pq cada circunferencia es una lista de puntos)
+    """
+
+    new_weights, indices = compute_forward_weights(circs[0], [0]*len(circs[0]), circs[1])
+    
+    min_weight = min(new_weights)
+    P2_index = circs[1].index(min_weight)
+    P1_index = indices[P2_index]
+
+    return [circs[0][P1_index], circs[1][P2_index]]
+
+
+
+
+
+
 
 if __name__ == "__main__":
 
