@@ -202,21 +202,48 @@ def compute_forward_weights(previous_points, weights, forward_points):
 
 
 
+# def compute_discrete_opt_example_2points(circs):
+#     """
+#     circs es una lista de circunferencias -> lista de listas de puntos (pq cada circunferencia es una lista de puntos)
+#     """
+
+#     new_weights, indices = compute_forward_weights(circs[0], [0]*len(circs[0]), circs[1])
+    
+#     min_weight = min(new_weights)
+#     P2_index = circs[1].index(min_weight)
+#     P1_index = indices[P2_index]
+
+#     return [circs[0][P1_index], circs[1][P2_index]]
+
+
+
+
 def compute_discrete_opt(circs):
     """
     circs es una lista de circunferencias -> lista de listas de puntos (pq cada circunferencia es una lista de puntos)
     """
+    return compute_discrete_opt_rec(circs, [0]*len(circs[0]))[0]
 
-    new_weights, indices = compute_forward_weights(circs[0], [0]*len(circs[0]), circs[1])
+
+def compute_discrete_opt_rec(circs, prev_weights):
+    """
+    circs es una lista de circunferencias -> lista de listas de puntos (pq cada circunferencia es una lista de puntos)
+    """
+    if len(circs)==2:
+        new_weights, indices = compute_forward_weights(circs[0], prev_weights, circs[1])
     
-    min_weight = min(new_weights)
-    P2_index = circs[1].index(min_weight)
-    P1_index = indices[P2_index]
+        min_weight = min(new_weights)
+        P2_index = circs[1].index(min_weight)
+        P1_index = indices[P2_index]
 
-    return [circs[0][P1_index], circs[1][P2_index]]
+        return [circs[0][P1_index], circs[1][P2_index]], P1_index
 
 
-
+    new_weights, indices = compute_forward_weights(circs[0], prev_weights, circs[1])
+    path, index = compute_discrete_opt_rec(circs[1:], new_weights)
+    p1_index = indices[index]
+    
+    return [circs[0][p1_index]] + path, p1_index
 
 
 
