@@ -103,3 +103,6 @@ if __name__ == "__main__":
     P2 = (result.x[1], result.x[4])
     P3 = (result.x[2], result.x[5])
     P4 = (alpha[-1], beta[-1])
+
+    
+    
