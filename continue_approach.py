@@ -1,5 +1,7 @@
+import math
 import numpy as np
 import random
+
 from scipy.optimize import differential_evolution, NonlinearConstraint, minimize
 
 # Define the non-convex objective function
@@ -80,13 +82,14 @@ if __name__ == "__main__":
     radii = [1, 1, 1]
     n = len(radii)
 
-    var = np.random.rand(3*n)
+    # var = np.random.rand(3*n)
+    var = [2.1599064461010484, 4.595656404471263, 5.450977182001876, 1.457558463336896, 2.4146071597986167, 2.835807361368275,0,10,10]
     options = {
         'maxiter': 1000,  # Aumenta el número máximo de iteraciones
         # 'gtol': 1e-16,     # Ajusta la tolerancia de la función
         'disp': True      # Muestra el proceso de optimización
     }
-    result= minimize(objective_function, var, args=(alpha[0], beta[0], alpha[-1], beta[-1], n), method='trust-constr', constraints=build_contrains(alpha, beta, radii, n), options=options)
+    result= minimize(objective_function, var, args=(alpha[0], beta[0], alpha[-1], beta[-1], n), method='SLSQP', constraints=build_contrains(alpha, beta, radii, n), options=options)
     # result= minimize(objective_function, var, args=(alpha[0], beta[0], alpha[-1], beta[-1], n), method='trust-constr', constraints=build_contrains_manually(alpha, beta, radii, n), options=options)
 
     print('Optimal solution:', result.x)
@@ -105,3 +108,21 @@ if __name__ == "__main__":
     P4 = (alpha[-1], beta[-1])
     
     print("SOLUCIÓN\n",(result.x[0], result.x[3]),"\n", (result.x[1], result.x[4]),"\n", (result.x[2], result.x[5]) )
+
+    r = [
+        [1,1],
+        [result.x[0], result.x[3]],
+        [result.x[1], result.x[4]],
+        [result.x[2], result.x[5]],
+        [8,5],
+    ]
+    pathlength = -2
+    for i in range(len(r)-1):
+        pathlength += math.sqrt((r[i][0]-r[i+1][0])**2 + (r[i][1]-r[i+1][1])**2)
+    
+    print("waypoints", r)
+    print("pathlength", pathlength)
+
+
+
+    # plot_points(points, alpha, beta, radio, r)
