@@ -3,29 +3,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def get_circle_points(x, y, r, n):
-    
-    posicion=(2*math.pi)/n
-    
-    tetha=[0]
+      
+    pi=[]
     for i in range(n):
-        tetha.append(posicion)
-        posicion=posicion+(2*math.pi)/n
-    coordenadas=[]
-    for i in range(n):
-        px, py= [],[]
-        for j in range(1):
-            aux1= x + r*math.cos(tetha[i])
-            px.append(aux1)
-            aux2= y + r*math.sin(tetha[i])
-            py.append(aux2)
-        
-        coordenadas.append(px+py)
-        
-   # print("longitud", len(coordenadas))
-    return coordenadas
+        tetha=i*((2*math.pi)/n)
+        px= [x + r*math.cos(tetha)]
+        py= [y + r*math.sin(tetha)]
+        pi.append(px+py)
+      
+    return pi
 
 
-def plot_points(point_list, h, k, r, path1=None, path2=None):
+def plot_solution(point_list, h, k, r, path1=None, path2=None):
     x , y =[], []
     additional_x , additional_y= [], []
     for l in range (len(point_list)):
@@ -89,7 +78,7 @@ def compute_forward_weights(previous_points, weights, forward_points):
     
     #Matriz que se devolverá con los pesos calculados de todos los puntos
     forward_weights=[]
-    indices=[]
+    positions=[]
     
     #Voy calculando los pesos por parejas de circunferencias. 
     for i in range(len(forward_points)):
@@ -99,9 +88,9 @@ def compute_forward_weights(previous_points, weights, forward_points):
         indexij = weightsij.index(minij)
 
         forward_weights.append(minij)
-        indices.append(indexij)
+        positions.append(indexij)
 
-    return forward_weights, indices 
+    return forward_weights, positions 
 
    
 #Coge la lista con todas las circunferencias y todos los puntos y crea el vector de pesos
@@ -113,24 +102,24 @@ def compute_discrete_opt(circs):
     return compute_discrete_opt_rec(circs, [0]*len(circs[0]))[0] #me quedo solo el primer elemento
                                                             #pues los índices me servían para iterar. 
 
-
+#Programación dinámica. + recursividad.
 def compute_discrete_opt_rec(circs, prev_weights):
     """
     circs es una lista de circunferencias -> lista de listas de puntos (pq cada circunferencia es una lista de puntos)
     """
     if len(circs)==2:
-        new_weights, indices = compute_forward_weights(circs[0], prev_weights, circs[1])
+        new_weights, positions = compute_forward_weights(circs[0], prev_weights, circs[1])
     
-        min_weight = min(new_weights)
-        P2_index = new_weights.index(min_weight)
-        P1_index = indices[P2_index]
+        minWg = min(new_weights)
+        P2_index = new_weights.index(minWg)
+        P1_index = positions[P2_index]
         #Devuelve de la primera circunferencia el punto que proporciona ese mínimo a la segunda
         # y de la segunda el punto con mínimo peso. 
         return [circs[0][P1_index], circs[1][P2_index]], P1_index
     
-    new_weights, indices = compute_forward_weights(circs[0], prev_weights, circs[1])
+    new_weights, positions = compute_forward_weights(circs[0], prev_weights, circs[1])
     path, index = compute_discrete_opt_rec(circs[1:], new_weights)
-    p1_index = indices[index]
+    p1_index = positions[index]
 
     return [circs[0][p1_index]] + path, p1_index
 
@@ -139,22 +128,23 @@ if __name__ == "__main__":
 
     alpha = [1, 3, 5,   6, 8]
     beta  = [1, 2, 1.5, 2, 5]
-    radio = 0.99
-    n=800
-
+    radio = 1
+    epsilon=0.1
+    Extension=radio-epsilon
+    division_number=20
+    blue_path=list(zip(alpha, beta))
     points=[]
     for i in range(len(alpha)):
-        x,y=alpha[i], beta[i]
-        points.append(get_circle_points(x, y, radio, n))
+        points.append(get_circle_points(blue_path[i][0], blue_path[i][1], Extension, division_number))
    
-    r = compute_discrete_opt(points)
+    red_path= compute_discrete_opt(points)
     pathlength = 0
-    for i in range(len(r)-1):
-        pathlength += math.sqrt((r[i][0]-r[i+1][0])**2 + (r[i][1]-r[i+1][1])**2)
-    
-    print("waypoints", r)
+    for i in range(len(red_path)-1):
+        pathlength +=euclidian_dist(red_path[i],red_path[i+1])
+        
+    print("waypoints", red_path)
     print("pathlength", pathlength)
 
     r2 = [[1, 1], [2.334674650986388, 1.253446465442755], [4.2127650767489815, 2.116653205305837], [6.068108641928804, 2.997677910397245], [8, 5]]
 
-    plot_points(points, alpha, beta, radio, r, r2)
+    plot_solution(points, alpha, beta, Extension, red_path, r2)
