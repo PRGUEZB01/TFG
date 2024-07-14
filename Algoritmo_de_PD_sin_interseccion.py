@@ -1,18 +1,17 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-import time 
 
-def Get_circle_points(x, y, r, Points_number):
+def get_circle_points(x, y, r, n):
       
-    Pi=[]
-    for i in range(Points_number):
-        Tetha=i*((2*math.pi)/Points_number)
-        px= [x + r*math.cos(Tetha)]
-        py= [y + r*math.sin(Tetha)]
-        Pi.append(px+py)
+    pi=[]
+    for i in range(n):
+        tetha=i*((2*math.pi)/n)
+        px= [x + r*math.cos(tetha)]
+        py= [y + r*math.sin(tetha)]
+        pi.append(px+py)
       
-    return Pi
+    return pi
 
 
 def plot_solution(point_list, h, k, r, path1=None, path2=None):
@@ -47,19 +46,19 @@ def plot_solution(point_list, h, k, r, path1=None, path2=None):
     if path1:
         Xs = [p[0] for p in path1]
         Ys = [p[1] for p in path1]
-        plt.plot(Xs, Ys, "-r", label="Discrete approach")
+        plt.plot(Xs, Ys, "-r", label="discrete approach")
 
     if path2:
         Xs = [p[0] for p in path2]
         Ys = [p[1] for p in path2]
-        plt.plot(Xs, Ys, "-r", label="Continue approach")
+        plt.plot(Xs, Ys, "-g", label="continue approach")
 
 
     # Configuramos la visualización. #Pinta todos los centros, ya que pinta el vector, hace plot de todo el vector, tanto scatter, como plot. 
     plt.scatter(h, k, color='red')  # Marcamos el centro
     plt.xlabel('x')
     plt.ylabel('y')
-    plt.title('RED PATH')
+    plt.title('Circunferencia con puntos adicionales')
     plt.axhline(0, color='gray', linewidth=0.5)
     plt.axvline(0, color='gray', linewidth=0.5)
     plt.grid(True)
@@ -71,91 +70,98 @@ def plot_solution(point_list, h, k, r, path1=None, path2=None):
     plt.show()
 
 
-def Euclidian_dist(P1, P2):
+def euclidian_dist(P1, P2):
     return math.sqrt((P1[0]-P2[0])**2 + (P1[1]-P2[1])**2)
 
 
-def Compute_forward_weights(Previous_points, Weights, Forward_points):
+def compute_forward_weights(previous_points, weights, forward_points):
     
     #Matriz que se devolverá con los pesos calculados de todos los puntos
-    Forward_weights=[]
-    Positions=[]
+    forward_weights=[]
+    positions=[]
     
     #Voy calculando los pesos por parejas de circunferencias. 
-    for i in range(len(Forward_points)):
+    for i in range(len(forward_points)):
 
-        Weightsij = [Euclidian_dist(Forward_points[i], pj) + wj for pj, wj in zip(Previous_points, Weights)] 
-        Minij = min(Weightsij)
-        Indexij = Weightsij.index(Minij)
+        weightsij = [euclidian_dist(forward_points[i], pj) + wj for pj, wj in zip(previous_points, weights)] 
+        minij = min(weightsij)
+        indexij = weightsij.index(minij)
 
-        Forward_weights.append(Minij)
-        Positions.append(Indexij)
+        forward_weights.append(minij)
+        positions.append(indexij)
 
-    return Forward_weights, Positions 
+    return forward_weights, positions 
 
    
 #Coge la lista con todas las circunferencias y todos los puntos y crea el vector de pesos
-def Compute_discrete_opt(Circs):
+def compute_discrete_opt(circs):
     """
     circs es una lista de circunferencias -> lista de listas de puntos (pq cada circunferencia es una lista de puntos)
     """
     #manda una lista de 0 como pesos iniciales la primera vez que se mete. 
-    return Compute_discrete_opt_rec(Circs, [0]*len(Circs[0]))[0] #me quedo solo el primer elemento
+    return compute_discrete_opt_rec(circs, [0]*len(circs[0]))[0] #me quedo solo el primer elemento
                                                             #pues los índices me servían para iterar. 
 
 #Programación dinámica. + recursividad.
-def Compute_discrete_opt_rec(Circs, Prev_weights):
+def compute_discrete_opt_rec(circs, prev_weights):
     """
     circs es una lista de circunferencias -> lista de listas de puntos (pq cada circunferencia es una lista de puntos)
     """
-    if len(Circs)==2:
-        New_weights, Positions = Compute_forward_weights(Circs[0], Prev_weights, Circs[1])
+    if len(circs)==2:
+        new_weights, positions = compute_forward_weights(circs[0], prev_weights, circs[1])
     
-        MinWg = min(New_weights)
-        P2_index = New_weights.index(MinWg)
-        P1_index = Positions[P2_index]
+        minWg = min(new_weights)
+        P2_index = new_weights.index(minWg)
+        P1_index = positions[P2_index]
         #Devuelve de la primera circunferencia el punto que proporciona ese mínimo a la segunda
         # y de la segunda el punto con mínimo peso. 
-        return [Circs[0][P1_index], Circs[1][P2_index]], P1_index
+        return [circs[0][P1_index], circs[1][P2_index]], P1_index
     
-    New_weights, Positions = Compute_forward_weights(Circs[0], Prev_weights, Circs[1])
-    Path, Index = Compute_discrete_opt_rec(Circs[1:], New_weights)
-    P1_index = Positions[Index]
+    new_weights, positions = compute_forward_weights(circs[0], prev_weights, circs[1])
+    path, index = compute_discrete_opt_rec(circs[1:], new_weights)
+    p1_index = positions[index]
 
-    return [Circs[0][P1_index]] + Path, P1_index
+    return [circs[0][p1_index]] + path, p1_index
 
 
 if __name__ == "__main__":
-    Inicio= time.time()
+
+    """Escenario 1. Trayecto con 5 circunferencias"""
     # alpha = [1, 3, 5,   6, 8]
-    # beta  = [1, 2, 1.5, 2, 5]  
+    # beta  = [1, 2, 1.5, 2, 5]
+    
+    # Continue_approach = [[1, 1], [2.334674650986388, 1.253446465442755], [4.2127650767489815, 2.116653205305837], [6.068108641928804, 2.997677910397245], [8, 5]]
+   ####---- Descomentar si se quiere mostrar unicamente el del algoritmo de PD-----####
+   # Continue_approach=None
+   
+    """ESCENARIO 2. Comparación de técnicas-"""
+   
     alpha = [5, 7, 9]
     beta  = [2.5, 6, 2.5]
-    R = 1
-    epsilon=0.1
-    Extension=R-epsilon
-    PN=130
-    Blue_path=list(zip(alpha, beta))
-    Pathlength = 0
-    Points=[]
-    for i in range(len(alpha)):
-        Points.append(Get_circle_points(Blue_path[i][0], Blue_path[i][1], R, PN))
-   
-    Red_path= Compute_discrete_opt(Points)
+    """Continuo con punto crítico máximo"""
+    # Continue_approach=[[5, 2.5], [7.00000000099425, 4.999999999834244], [9, 2.5]]
+    """Continuo con punto crítico mínimo"""
+    Continue_approach=[[5, 2.5], [6.999999999934018, 7.000000000044246], [9, 2.5]]
     
-    for i in range(len(Red_path)-1):
-        Pathlength +=Euclidian_dist(Red_path[i],Red_path[i+1])
+    ####---- Descomentar si se quiere mostrar unicamente el del algoritmo de PD-----####
+    # Continue_approach=None
+    
+    radio = 1
+    epsilon=0.1
+    Extension=radio-epsilon
+    division_number=20
+    blue_path=list(zip(alpha, beta))
+    points=[]
+    for i in range(len(alpha)):
+        points.append(get_circle_points(blue_path[i][0], blue_path[i][1], Extension, division_number))
+   
+    red_path= compute_discrete_opt(points)
+    pathlength = 0
+    for i in range(len(red_path)-1):
+        pathlength +=euclidian_dist(red_path[i],red_path[i+1])
         
-    print("waypoints RP", Red_path)
-    print("pathlength RP", Pathlength)
+    print("waypoints", red_path)
+    print("pathlength", pathlength)
 
-    # r2 = [[1, 1], [2.334674650986388, 1.253446465442755], [4.2127650767489815, 2.116653205305837], [6.068108641928804, 2.997677910397245], [8, 5]]
-    # r2= [[1, 1], [2.460381732528291, 1.2797138586569503], [4.3005095588776925, 2.066315391613762], [6.0877825716771214, 2.895708780863792], [8, 5]]
-    r2=[5, 2.5], [7.0, 5.0], [9, 2.5]
-    Pathlength2=-2
-    for i in range(len(r2)-1):
-        Pathlength2 +=Euclidian_dist(r2[i],r2[i+1])
-    print("pathlength", Pathlength2)
-    Final=time.time()    
-    print("Tiempo de funcionamiento: ", Final-Inicio)
-    plot_solution(Points, alpha, beta, R, None, r2)
+    
+    plot_solution(points, alpha, beta, Extension, red_path, Continue_approach)

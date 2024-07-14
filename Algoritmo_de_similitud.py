@@ -8,7 +8,7 @@ Input (blue_path, red_path)
 output (frechet_path, aceleration_points, stops_points)
 graphics outputs (free space diagram, frèchet distance between curves)
 
-Se aplica una modificación del modelo de frèchet de T. Eiter and H Mannila
+Se aplica el modelo de matriz de Frèchet de T. Eiter and H Mannila
 Computing Discrete Frèchet Distance, 1994. 
 Donde:
     -Se descretizan los dos path por puntos
@@ -24,7 +24,6 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 import numpy as np 
-import pandas as pd
 from copy import deepcopy
 
 def Euclidian_dist(P1, P2):
@@ -146,7 +145,7 @@ def Discret_route(r_a,r_t,N):
     aux1,aux2=r_a[0][0],r_a[0][1]
     aux11,aux22=r_t[0][0],r_t[0][1]
     for i in range(len(r_a)-1):
-        #Sin valor absoluto, pues si importa la dirección que va a tomar. 
+       
         c=[ (r_a[i+1][k]-r_a[i][k])/N for k in range(2)]
         cc=[(r_t[i+1][k]-r_t[i][k])/N for k in range(2)]
         for j in range(N):
@@ -208,14 +207,14 @@ def Distance_Frechet_Matriz(BP_points, RP_points, Circ_number):
     for i in range(1,len(BP_points)):
         for j in range(1,len(RP_points)):
             DFM[i][j]=max(min(DFM[i-1][j], DFM[i][j-1], DFM[i-1][j-1]),Euclidian_dist(BP_points[i],RP_points[j]))
-    m=np.array(DFM)
+    # m=np.array(DFM)
 
-    pd.set_option('display.max_columns', None)  # Mostrar todas las columnas
-    pd.set_option('display.width', 1000)        # Ajustar el ancho a 1000 caracteres
-    pd.set_option('display.float_format', '{:.6f}'.format)  # Formato de impresión para floats
+    # pd.set_option('display.max_columns', None)  # Mostrar todas las columnas
+    # pd.set_option('display.width', 1000)        # Ajustar el ancho a 1000 caracteres
+    # pd.set_option('display.float_format', '{:.6f}'.format)  # Formato de impresión para floats
 
 
-    df = pd.DataFrame(m)
+    # df = pd.DataFrame(m)
     # print("OBTENIDA: \n",df)   
     path, Distance, Stop_points= Calculate_sequence(len(DFM[0])-1, DFM)     
 
@@ -232,44 +231,29 @@ def Distance_Frechet_Matriz(BP_points, RP_points, Circ_number):
 
 #INPUT DATA
 
-""""Caso 2"""
+""""CASO Aplicación ilustrativa del algoritmo de Fréchet"""
 # BP=[[1.0,1.0],[3.0,2.0],[5.0,1.5],[6.0,2.0],[8.0,5.0]]
-# BP=[[3.7, 3.84], [4.17, 2.75], [3.71, 1.67], [2.67, 1.25], [1.64, 1.66], [1.17, 2.75], [1.63, 3.83], [2.67, 4.25], [3.8, 5]]
-# RP=[[3.362854065925679, 3.005534530889891], 
-#     [3.270548255682814, 2.781409547032251],
-#     [3.084807466586902, 2.317405820304786],
-#     [2.5915598315271073, 2.146575228282571],
-#     [1.1367263868763278, 2.4061338152995377],
-#     [1.2484401684728923, 3.646575228282571],
-#     [2.2204531260914564, 4.5092386222004945],
-#     [2.9029371405922686, 5.1193332436601615],
-#     [2.9087587381325863, 5.125255790864059]]
+# BP=[[1,2], [3,1.7], [5,2], [6,2]]
+# RP=[[1,1], [2,1.3], [5,0.8], [6,0.8]]
 # Circ_number= len(BP)
+# SPN=10
+# Extension=1.4
+
+"""Octogono 1"""
+# RP=[[3.3808556016617177, 2.9984853815831265], [3.27, 2.75], [3.0970857270918826, 2.329041799937996], [2.604808679854414, 2.147635834722342], [1.1287417279419598, 2.4006854793042907], [1.2351913201455862, 3.647635834722342], [2.2103579914625535, 4.517884148491263], [2.906436640378728, 5.118387998009196], [2.9094442404940537, 5.130040144612299]]
+# BP=[[3.7, 3.84], [4.17, 2.75], [3.71, 1.67], [2.67, 1.25], [1.64, 1.66], [1.17, 2.75], [1.63, 3.83], [2.67, 4.25], [3.8, 5]]
 # SPN=3
 # Extension=0.95
+# Circ_number= len(BP)
 
+""""Caso 2. Comportamiento del espacio libre"""
 BP=[[2.1,3.1],[3.1,2.1],[3.13,4.51],[0.1,2.1],[4.1,0.1],
     [7.1,2.1],[8.25,3.11],[7.08,3.71],[3.11,5.77],[0.8,4.44]]
 RP=[[2.995069705831446, 3.005924383059112], [3.005924383059112, 2.995069705831446], [2.822181871006898, 3.664276641292682], [0.9863269777109872, 2.2562833599002374], [4.0372191736302865, 0.9978076452338418], [7.256283359900237, 2.9863269777109873], [7.352192354766158, 3.047219173630287], [6.199667159339575, 3.5228794782640165], [3.015924383059112, 4.8749302941685535], [1.6803328406604252, 4.627120521735984]]
 Circ_number= len(BP)
 SPN=60
 Extension=0.95
-""""CASO DE PRUEBA FRECHET"""
-# BP=[[1.0,1.0],[3.0,2.0],[5.0,1.5],[6.0,2.0],[8.0,5.0]]
-# BP=[[1,2], [3,1.7], [5,2], [6,2]]
-# RP=[[1,1], [2,1.3], [5,0.8], [6,0.8]]
-# RP=[[3.362854065925679, 3.005534530889891], 
-#     [3.270548255682814, 2.781409547032251],
-#     [3.084807466586902, 2.317405820304786],
-#     [2.5915598315271073, 2.146575228282571],
-#     [1.1367263868763278, 2.4061338152995377],
-#     [1.2484401684728923, 3.646575228282571],
-#     [2.2204531260914564, 4.5092386222004945],
-#     [2.9029371405922686, 5.1193332436601615],
-#     [2.9087587381325863, 5.125255790864059]]
-# Circ_number= len(BP)
-# SPN=10
-# Extension=1.4
+
 
 
 """Primero. Se discretiza la recta"""
@@ -290,49 +274,26 @@ while len(pi) != 0:
     for i in range(len(Aceleration_p)):
         if pi[0]==Aceleration_p[i]:
             speed_decisions.append(str("A"))
-    for i in range(len(Aceleration_p)):
+    for i in range(len(Deceleration_p)):
         if pi[0]==Deceleration_p[i]:
             speed_decisions.append("D")
     else:
-        speed_decisions.append("M")
+        for i in range(len(Constant_speed_p)):
+            if pi[0]==Constant_speed_p[i]:
+                speed_decisions.append("M")
     k=pi[0]
     pi.remove(k)
     
    
-# print("El vector de decisión de velocidades: ", speed_decisions)
+print("El vector de decisión de velocidades: ", speed_decisions)
 """Calculo las variaciones de velocidad, para determinar el ritmo del vector"""
-# Deceleration_points,Aceleration_points,Constant_speed_points=[],[],[]
-# for i in range (len(coordenada_UGV)-1):
-#     A=euclidian_dist(coordenada_UGV[i], coordenada_UGV[i+1])
-#     B=euclidian_dist(coordenada_UAV[i], coordenada_UAV[i+1])
-#     if A>B:
-#         Aceleration_points.append(coordenada_UGV[i])
-#     elif A<B:
-#         Deceleration_points.append(coordenada_UGV[i])
-#     else:
-#         Constant_speed_points.append(coordenada_UGV[i])
 print("El dron UGV recorre el segmento respecto del dron UAV:\nA una mayor velocidad en: ", Aceleration_p, 
       "\nA una menor velocidad en: ",Deceleration_p,"\n y a la misma velocidad en: ", Constant_speed_p)
 #GRÁFICAS
 Graphic_curves(BP, RP, Coords_UAV, Coords_UGV)
 Plot_graphic_free_space_diagram(Free_space, Frechet_path)
-# print("Distancia",Distance)
 
-#Resultados:
-# print(f"Las distancias entre puntos:\n {Distance}\nLos puntos de frenado: ")
+print("Distancias entre puntos: (debe ser siempre menor a 0.95) \n",Distance)
 for i in range(len(Stop_points)):print(Stop_points[i])
-# print("\nLos puntos de aceleración: ")
-# for i in range(len(ptos_aceleracion)):print(ptos_aceleracion[i])
-# print(f"\nLa ruta seguida:\n{path}")
-           
-# m=np.array(D)
-
-# pd.set_option('display.max_columns', None)  # Mostrar todas las columnas
-# pd.set_option('display.width', 1000)        # Ajustar el ancho a 1000 caracteres
-# pd.set_option('display.float_format', '{:.6f}'.format)  # Formato de impresión para floats
-
-
-# df = pd.DataFrame(m)
-# print("OBTENIDA: \n",df)   
+  
    
-
